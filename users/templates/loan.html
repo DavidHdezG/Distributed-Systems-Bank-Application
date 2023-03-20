@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>laon</h1>
+<ul>
+
+    {% for loan in loans %}
+    <li>
+        <a href="{% url 'loan_detail' loan.idLoan %}">
+            {{loan.idLoan}}
+            {{ loan.idBranch}}
+            {{ loan.quantity}}
+            {{loan.date}}
+
+            {% if loan.approved %}
+                <span>Approved</span>
+            {% else %}
+                <span>Not Approved</span>
+            {% endif %}
+        </a>
+    </li>
+    {% endfor %}
+
+</ul>
+
+<a href="create/">Nuevo prestamo</a>
+{% endblock %}

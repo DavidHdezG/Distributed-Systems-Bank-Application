@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+<h1>SignIn</h1>
+
+{% if error %}
+    <p>{{error}}</p>
+{% endif %}
+
+<form action="/signin/" method="POST">
+    {% csrf_token %}
+
+    {{authform.as_p}}
+
+    <button>
+        Signin
+    </button>
+</form>
+
+{% endblock %}
