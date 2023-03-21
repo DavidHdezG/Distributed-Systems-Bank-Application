@@ -12,5 +12,13 @@
     <button >update</button>
 </form>
 
+{% if user.is_staff %}
+    <form action="{% url 'loan_approved' loan.idLoan %}" method="POST">
+        {% csrf_token %}
+        
+        <button>Aprobar</button>
+    </form>
+{% endif %}
+
 
 {% endblock %}

@@ -3,9 +3,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from .forms import LoanForm
-from .models import Loan
+from .forms import LoanForm, BranchForm, Client
+from .models import Loan, Branch
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 # Create your views here.
             
 from django.db import connections
@@ -19,8 +20,9 @@ def check_database_connection(database_name='oracle1'):
     return True
 
 def home(request):
-    print(check_database_connection())
-    print(check_database_connection('oracle2'))
+    createStaffUser()   
+    #print(check_database_connection())
+    #print(check_database_connection('oracle2'))
     return render(request, 'home.html')
 
 
@@ -28,7 +30,7 @@ def signup(request):
 
     if request.method == 'GET':
         return render(request, 'signup.html', {
-            'form': UserCreationForm,
+            'form': Client,
         })
     else:
         if request.POST['password1'] == request.POST['password2']:
@@ -38,15 +40,15 @@ def signup(request):
                     username=request.POST['username'], password=request.POST['password1'])
                 user.save()
                 login(request, user)
-                return redirect('loan')
+                return redirect('home')
             except IntegrityError:
                 return render(request, 'signup.html', {
-                    'form': UserCreationForm,
+                    'form': Client,
                     'error': 'user already exists'
                 })
 
         return render(request, 'signup.html', {
-            'form': UserCreationForm,
+            'form': Client,
             'error': 'passwords did not match'
         })
 
@@ -76,7 +78,7 @@ def signin(request):
             })
         else:
             login(request, user)
-            return redirect('loan')
+            return redirect('home')
         
 @login_required 
 def createLoan(request):
@@ -121,4 +123,70 @@ def loanDetail(request, loan_id):
             'error': 'error updating loan'
         })
             
+@user_passes_test(lambda u: u.is_staff)
+def branch(request):
+    branches=Branch.objects.all()
+    return render(request, 'branch.html',{
+        'branches': branches
+    })
+    
+@user_passes_test(lambda u: u.is_staff)
+def branch_detail(request, branch_id):
+    if request.method == 'GET':
+        branch=get_object_or_404(Branch,pk=branch_id)
+        form =BranchForm(instance=branch)
+        return render(request, 'branch_detail.html',{
+            'branch':branch,
+            'form':form
+        })
+    else:
+        try:
+            branch=get_object_or_404(Branch,pk=branch_id)
+            form=BranchForm(request.POST,instance=branch)
+            form.save()
+            return redirect('branch')
+        except ValueError:
+            return render(request, 'branch_detail.html',{
+            'branch':branch,
+            'form':form,
+            'error': 'error updating branch'
+        })
+      
+@user_passes_test(lambda u: u.is_staff)      
+def create_branch(request):
+    if request.method == 'GET':
+        return render(request, 'create_branch.html', {
+            'form': BranchForm
+        })
+    else:
+        try:
+            form = BranchForm(request.POST)
+            new_branch=form.save(commit=False)
+            new_branch.save()
+            return redirect('branch')
+        except ValueError:
+            return render(request, 'create_branch.html', {
+                'form': BranchForm,
+                'error': 'provide valid data'
+            })
+
+
+def loan_approved(request,loan_id):
+    loan = get_object_or_404(Loan,pk=loan_id)    
+    if request.method == 'POST' and request.user.is_staff:
+        loan.approved = True
+        loan.save()  
+        return redirect('loan')
             
+from django.contrib.auth.models import User
+   
+def createStaffUser():
+    user = User(username='davidh', email='a338953@uach.mx', is_staff=True)
+
+# Establecer la contraseña
+    user.set_password('password')
+
+    # Guardar el usuario en la base de datos
+    
+    print('User created successfully')
+    

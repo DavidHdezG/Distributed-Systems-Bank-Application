@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Branch</h1>
+
+<ul>
+    {% for branch in branches %}
+    <li>
+        <a href="{% url 'branch_detail' branch.idBranch %}">
+            {{branch.idBranch}}
+            {{branch.name}}
+            {{branch.city}}
+            {{branch.assets}}
+            {{branch.region}}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+<a href="create/">Nueva branch</a>
+{% endblock %}

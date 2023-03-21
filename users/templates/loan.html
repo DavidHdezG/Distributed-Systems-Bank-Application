@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>laon</h1>
+{% if user.is_staff %}
+    <h1>Préstamos pendientes</h1>
+{% else %}
+    <h1>Préstamos</h1>
+{% endif %}
 <ul>
 
     {% for loan in loans %}
@@ -24,4 +28,7 @@
 </ul>
 
 <a href="create/">Nuevo prestamo</a>
+
+
 {% endblock %}
+
