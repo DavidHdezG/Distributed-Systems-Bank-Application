@@ -5,20 +5,43 @@
 
 {{error}}
 
-<form method="post">
-    {% csrf_token %}
+<main class="container mt-5">
     
-    {{form.as_p}}
-    <button >update</button>
-</form>
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <form method="post" class="card card-body">
+                {% csrf_token %}
+                <h3 class="text-center">{{loan.user}}</h3>
+                {{form.as_p}}
+                {% if user.is_staff or not loan.approved %}
+                    <button class="btn btn-dark">Actualizar</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-4 offset-md-4">
+            {% if user.is_staff %}
+                {% if not loan.approved %}
+                <form action="{% url 'loan_approved' loan.idLoan %}" method="POST">
+                    {% csrf_token %}
+                   
+                    <button class="btn btn-success">Aprobar</button>
+                
+                    
+                </form>
+                {% else %}
+                <form action="{% url 'loan_canceled' loan.idLoan %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-danger">Cancelar</button>
+                </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</main>
 
-{% if user.is_staff %}
-    <form action="{% url 'loan_approved' loan.idLoan %}" method="POST">
-        {% csrf_token %}
-        
-        <button>Aprobar</button>
-    </form>
-{% endif %}
+
 
 
 {% endblock %}

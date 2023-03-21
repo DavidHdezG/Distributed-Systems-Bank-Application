@@ -1,17 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>create loan</h1>
+
 
 {{error}}
 
 
-<form action="/loan/create/" method="POST">
-    {% csrf_token %}
-    {{form.as_p}}
+<main class="container mt-5">
+    <h1 class="text-center">Solicitar préstamo</h1>
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <form action="/loan/create/" method="POST" class="card card-body">
+                {% csrf_token %}
+                {{form.as_p}}
 
-    <button>
-        Create
-    </button>
 
-</form>
+                <button class="btn btn-dark">
+                    Create
+                </button>
+            
+            </form>
+        </div>
+    </div>
+</main>
 {% endblock %}

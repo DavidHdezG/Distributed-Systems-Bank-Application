@@ -20,7 +20,7 @@ def check_database_connection(database_name='oracle1'):
     return True
 
 def home(request):
-    createStaffUser()   
+    #createStaffUser()   
     #print(check_database_connection())
     #print(check_database_connection('oracle2'))
     return render(request, 'home.html')
@@ -55,7 +55,10 @@ def signup(request):
 
 @login_required
 def loan(request):
-    loans=Loan.objects.filter(user=request.user)
+    if request.user.is_staff:
+        loans = Loan.objects.all()
+    else: 
+        loans=Loan.objects.filter(user=request.user)
     return render(request, 'loan.html',{
         'loans':loans
     })
@@ -103,7 +106,11 @@ def createLoan(request):
 @login_required            
 def loanDetail(request, loan_id):
     if request.method == 'GET':
-        loan=get_object_or_404(Loan,pk=loan_id, user=request.user)
+        if request.user.is_staff:
+            loan=get_object_or_404(Loan,pk=loan_id)
+        else:
+            loan=get_object_or_404(Loan,pk=loan_id, user=request.user)
+            
         form=LoanForm(instance=loan)
         return render(request, 'loan_detail.html',{
             'loan':loan,
@@ -111,7 +118,11 @@ def loanDetail(request, loan_id):
         })
     else:
         try:
-            loan=get_object_or_404(Loan,pk=loan_id, user=request.user)
+            if request.user.is_staff:
+                loan=get_object_or_404(Loan,pk=loan_id)
+            else:
+                loan=get_object_or_404(Loan,pk=loan_id, user=request.user)
+            
             form=LoanForm(request.POST,instance=loan)
             form.save()
             
@@ -177,7 +188,13 @@ def loan_approved(request,loan_id):
         loan.approved = True
         loan.save()  
         return redirect('loan')
-            
+    
+def loan_canceled(request,loan_id):
+    loan = get_object_or_404(Loan,pk=loan_id)    
+    if request.method == 'POST' and request.user.is_staff:
+        loan.approved = False
+        loan.save()  
+        return redirect('loan')           
 from django.contrib.auth.models import User
    
 def createStaffUser():
@@ -187,6 +204,6 @@ def createStaffUser():
     user.set_password('password')
 
     # Guardar el usuario en la base de datos
-    
+    User.save(user)
     print('User created successfully')
     

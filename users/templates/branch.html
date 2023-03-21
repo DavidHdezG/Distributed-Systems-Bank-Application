@@ -1,20 +1,40 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Branch</h1>
 
-<ul>
-    {% for branch in branches %}
-    <li>
-        <a href="{% url 'branch_detail' branch.idBranch %}">
-            {{branch.idBranch}}
-            {{branch.name}}
-            {{branch.city}}
-            {{branch.assets}}
-            {{branch.region}}
-        </a>
-    </li>
-    {% endfor %}
-</ul>
 
-<a href="create/">Nueva branch</a>
+<main class="container mt-5">
+
+    <h1 class="text-center">Sucursales</h1>
+
+    <table class="table text-center mt-3">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Ciudad</th>
+                <th scope="col">Activos</th>
+                <th scope="col">Región</th>
+                <th scope="col">Detalles</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for branch in branches %}
+            <tr>
+                <th scope="row">{{branch.idBranch}}</th>
+                <td>{{branch.name}}</td>
+                <td>{{branch.city}}</td>
+                <td>${{branch.assets}}</td>
+                <td>{{branch.region}}</td>
+                <td>
+                    <a href="{% url 'branch_detail' branch.idBranch %}" class="btn ">Ver</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="container mx-auto">
+        <a href="create/" class="btn btn-dark">Nueva sucursal</a>
+    </div>
+</main>
+
 {% endblock %}

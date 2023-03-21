@@ -26,6 +26,7 @@ urlpatterns = [
     path('loan/create/', views.createLoan, name='create_loan'),
     path('loan/<int:loan_id>/', views.loanDetail, name='loan_detail'),
     path('loan/<int:loan_id>/approved/', views.loan_approved, name='loan_approved'),
+    path('loan/<int:loan_id>/canceled/', views.loan_canceled, name='loan_canceled'),
     path('branch/', views.branch, name='branch'),
     path('branch/<int:branch_id>/', views.branch_detail, name='branch_detail'),
     path('branch/create/', views.create_branch, name='create_branch'),

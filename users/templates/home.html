@@ -1,26 +1,42 @@
 {% extends "base.html" %}
 <!-- {% load static %} -->
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-md-12">
-      <h1>Home</h1>
-      <p>Home page</p>
-    </div>
-    <div>
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Et recusandae
-      nesciunt distinctio voluptatem ex fugiat ea minima id explicabo ducimus
-      ipsam asperiores eos sequi nobis corrupti laboriosam consequuntur,
-      doloribus magni! Tempore maiores, eius libero quam culpa recusandae a,
-      facilis, velit ratione ab eaque ipsa eos nobis officia nemo sunt at. Sint
-      inventore itaque amet a eligendi minima possimus veritatis laborum!
-      Dolorem, ab nisi quos consectetur id dolor unde facere consequuntur,
-      doloremque fugit molestiae voluptatibus. Natus consectetur, vel, at
-      assumenda repudiandae repellat quo ad, cumque fugit laudantium aperiam
-      possimus! Repudiandae, temporibus!
-    </div>
-  </div>
-</div>
+<main class="container py-5">
+    <section class="card card-body">
+        <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                <h1 class="display-1 text-center">Home</h1>
+                <p>Home page</p>
+              </div>
+              <div>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Et recusandae
+                nesciunt distinctio voluptatem ex fugiat ea minima id explicabo ducimus
+                ipsam asperiores eos sequi nobis corrupti laboriosam consequuntur,
+                doloribus magni! Tempore maiores, eius libero quam culpa recusandae a,
+                facilis, velit ratione ab eaque ipsa eos nobis officia nemo sunt at. Sint
+                inventore itaque amet a eligendi minima possimus veritatis laborum!
+                Dolorem, ab nisi quos consectetur id dolor unde facere consequuntur,
+                doloremque fugit molestiae voluptatibus. Natus consectetur, vel, at
+                assumenda repudiandae repellat quo ad, cumque fugit laudantium aperiam
+                possimus! Repudiandae, temporibus!
+              </div>
+            </div>
+          </div>
+
+        {% if not user.is_authenticated %}
+        <div class="text-center">
+            <a class="btn btn-seconday" href="/signin/">
+                Iniciar sesión
+            </a>
+            <a class="btn btn-dark" href="/signup/">
+                Registrarse
+            </a>
+        </div>
+        {% endif %}
+
+    </section>
+</main>
 
 
 {% endblock %}

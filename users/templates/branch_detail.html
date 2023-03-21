@@ -5,12 +5,18 @@
 
 {{error}}
 
-<form method="post">
-    {% csrf_token %}
-    
-    {{form.as_p}}
-    <button >update</button>
-</form>
+<main class="container mt-5">
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <form method="post" class="card card-body">
+                {% csrf_token %}
+                <h3 class="text-center">{{branch.idBranch}}</h3>
+                {{form.as_p}}
+                <button class="btn btn-dark" >update</button>
+            </form>
+        </div>
+    </div>
+</main>
 
 
 {% endblock %}

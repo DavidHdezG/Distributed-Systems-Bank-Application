@@ -1,16 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Create Branch</h1>
+
     
     {{error}}
 
-<form action="/branch/create/", method="POST">
-    {% csrf_token %}
-    {{form.as_p}}
-
-    <button>
-        Create
-    </button>
-</form>
-
+<main class="container mt-5">
+    <div class="row">
+        <div class="col-md-4 offset-md-4" >
+            <form action="/branch/create/", method="POST">
+                <h1 class="text-center">Crear sucursal</h1>
+                {% csrf_token %}
+                {{form.as_p}}
+            
+                <button class="btn btn-dark">
+                    Crear sucursal
+                </button>
+            </form>
+            
+        </div>
+    </div>
+</main>
 {% endblock %}

@@ -1,33 +1,57 @@
 {% extends 'base.html' %}
 {% block content %}
 
-{% if user.is_staff %}
-    <h1>Préstamos pendientes</h1>
-{% else %}
-    <h1>Préstamos</h1>
-{% endif %}
-<ul>
 
-    {% for loan in loans %}
-    <li>
-        <a href="{% url 'loan_detail' loan.idLoan %}">
-            {{loan.idLoan}}
-            {{ loan.idBranch}}
-            {{ loan.quantity}}
-            {{loan.date}}
+<main class="container mt-5">
 
-            {% if loan.approved %}
-                <span>Approved</span>
-            {% else %}
-                <span>Not Approved</span>
-            {% endif %}
-        </a>
-    </li>
-    {% endfor %}
+    {% if user.is_staff %}
+        <h1 class="text-center">Préstamos pendientes</h1>
+    {% else %}
+        <h1 class="text-center">Préstamos</h1>
+    {% endif %}
 
-</ul>
+    <table class="table text-center mt-3">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">ID Sucursal</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Detalles</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for loan in loans %}
+            <tr>
+                <th scope="row">{{loan.idLoan}}</th>
+                <td>{{ loan.idBranch}}</td>
+                <td>{{ loan.user}}</td>
+                <td>${{ loan.quantity}}</td>
+                <td>{{loan.date}}</td>
+                <td>
+                    {% if loan.approved %}
+                        <span>Aprobado</span>
+                    {% else %}
+                        <span>No aprobado</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'loan_detail' loan.idLoan %}" class="btn ">Ver</a>
+                </td>
+            </tr>
+    
+            {% endfor %}
+        </tbody>
+      </table>
+      <div class="container mx-auto">
+        <a href="create/" class="btn btn-dark">Nuevo prestamo</a>
+      </div>
+</main>
 
-<a href="create/">Nuevo prestamo</a>
+
+
 
 
 {% endblock %}
