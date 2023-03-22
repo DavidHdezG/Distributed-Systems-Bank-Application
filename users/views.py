@@ -1,15 +1,15 @@
-from django.shortcuts import get_object_or_404, render,redirect
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError
-from .forms import LoanForm, BranchForm, Client
-from .models import Loan, Branch
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.models import User
+from django.db import IntegrityError, connections
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .forms import BranchForm, Client, LoanForm
+from .models import Branch, Loan
+
 # Create your views here.
             
-from django.db import connections
 
 def check_database_connection(database_name='oracle1'):
     try:
@@ -25,6 +25,32 @@ def home(request):
     #print(check_database_connection('oracle2'))
     return render(request, 'home.html')
 
+
+def signup(request):
+
+    if request.method == 'GET':
+        return render(request, 'signup.html', {
+            'form': Client,
+        })
+    else:
+        if request.POST['password1'] == request.POST['password2']:
+            # register user
+            try:
+                user = User.objects.create_user(
+                    username=request.POST['username'], password=request.POST['password1'])
+                user.save()
+                login(request, user)
+                return redirect('home')
+            except IntegrityError:
+                return render(request, 'signup.html', {
+                    'form': Client,
+                    'error': 'user already exists'
+                })
+
+        return render(request, 'signup.html', {
+            'form': Client,
+            'error': 'passwords did not match'
+        })
 
 def signup(request):
 
@@ -196,14 +222,40 @@ def loan_canceled(request,loan_id):
         loan.save()  
         return redirect('loan')           
 from django.contrib.auth.models import User
-   
+
+
 def createStaffUser():
     user = User(username='davidh', email='a338953@uach.mx', is_staff=True)
-
+    user1= User(username='Luih',email='luih@uach.mx')
+    user2 = User(username='José',email='josé@uach.mx')
+    user3 = User(username='Juan',email='juan@uach.mx')
+    user4 = User(username='Pedro',email='pedro@uach.mx')
+    user5= User(username='Carlos',email='carlos@uach.mx')
+    user6 = User(username='Ana', email='ana@uach.mx')
+    user7 = User(username='María', email='maria@uach.mx')
+    user8 = User(username='Miguel', email='miguel@uach.mx')
+    user9 = User(username='Laura', email='laura@uach.mx')
 # Establecer la contraseña
     user.set_password('password')
+    user1.set_password('password')
+    user2.set_password('password')
+    user3.set_password('password')
+    user4.set_password('password')
+    user5.set_password('password')
+    user6.set_password('password')
+    user7.set_password('password')
+    user8.set_password('password')
+    user9.set_password('password')
 
     # Guardar el usuario en la base de datos
-    User.save(user)
+    User.save(user1)
+    User.save(user2)
+    User.save(user3)
+    User.save(user4)
+    User.save(user5)
+    User.save(user6)
+    User.save(user7)
+    User.save(user8)
+    User.save(user9)
     print('User created successfully')
     
