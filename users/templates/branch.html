@@ -5,7 +5,16 @@
 <main class="container mt-5">
 
     <h1 class="text-center">Sucursales</h1>
-
+    <form method="POST">
+        {% csrf_token %}
+        <select class="form-select form-select-sm" aria-label=".form-select-sm example" name="region" id="region">
+            <option selected>Región</option>
+            <option value="1">Uno</option>
+            <option value="2">Dos</option>
+            <option value="3">Todas</option>
+          </select>
+        <button class="btn btn-dark">Filtrar</button> 
+    </form>
     <table class="table text-center mt-3">
         <thead>
             <tr>

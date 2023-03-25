@@ -9,7 +9,22 @@ from .forms import BranchForm, Client, LoanForm
 from .models import Branch, Loan
 
 # Create your views here.
-            
+loan_map={
+    'idLoan':'idLoan',
+    'quantity':'quantity',
+    'date_created':'date_created',
+    'approved':'approved',
+    'idBranch':'idBranch',
+    'user_id':'user_id'
+}   
+
+branch_map={
+    'idBranch':'idBranch',
+    'name':'name',
+    'city':'city',
+    'assets':'assets',
+    'region':'region',
+}      
 
 def check_database_connection(database_name='oracle1'):
     try:
@@ -78,11 +93,14 @@ def signup(request):
             'error': 'passwords did not match'
         })
 
-
+from django.db import connection
 @login_required
 def loan(request):
     if request.user.is_staff:
-        loans = Loan.objects.all()
+        row=Loan.objects.raw("SELECT * FROM global_loan",translations=loan_map)
+
+        loans=row
+        
     else: 
         loans=Loan.objects.filter(user=request.user)
     return render(request, 'loan.html',{
@@ -162,7 +180,18 @@ def loanDetail(request, loan_id):
             
 @user_passes_test(lambda u: u.is_staff)
 def branch(request):
-    branches=Branch.objects.all()
+    branches=[]
+    if(request.method=='GET'):
+        branches=Branch.objects.raw('SELECT * FROM global_branch',translations=branch_map)
+    else:
+        if request.POST.get('region')=='3':
+            branches=Branch.objects.raw('SELECT * FROM global_branch',translations=branch_map)
+        elif request.POST.get('region')=='1':
+            branches=Branch.objects.raw('SELECT * FROM global_branch WHERE region=1',translations=branch_map)
+        else:
+            branches=Branch.objects.raw('SELECT * FROM global_branch WHERE region=2',translations=branch_map)
+   
+    
     return render(request, 'branch.html',{
         'branches': branches
     })
@@ -175,7 +204,7 @@ def branch_detail(request, branch_id):
         return render(request, 'branch_detail.html',{
             'branch':branch,
             'form':form
-        })
+        }) 
     else:
         try:
             branch=get_object_or_404(Branch,pk=branch_id)

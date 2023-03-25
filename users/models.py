@@ -1,12 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
+
 from django.contrib.auth.forms import UserCreationForm
 # Create your models here.
 class Loan(models.Model):
     idLoan = models.CharField(primary_key=True,max_length=4)
     idBranch = models.ForeignKey('Branch', models.DO_NOTHING, db_column='idBranch')
     quantity = models.FloatField(null=False, max_length=11)
-    date = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
     approved = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
@@ -24,8 +25,9 @@ class Loan(models.Model):
                 newValue='00'
             self.idLoan='L-'+newValue
         super().save(*args, **kwargs)
-    #class Meta:
-    #    db_table = 'loan'
+    class Meta:
+        managed = False
+        db_table = 'loan'
 
 class Branch(models.Model):
     idBranch = models.CharField(primary_key=True,max_length=10)
@@ -48,5 +50,7 @@ class Branch(models.Model):
                 newValue='0001'
             self.idBranch='S'+newValue
         super().save(*args, **kwargs)
-    #class Meta:
-    #    db_table = 'branch'
+    class Meta:
+        managed = False
+        db_table = 'branch'
+
