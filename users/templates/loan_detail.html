@@ -2,8 +2,12 @@
 {% block content %}
 
 
-
-{{error}}
+{% if error %}
+    
+    <div class="alert alert-danger col-md-4 offset-md-4 mt-5" role="alert">
+        {{error}}
+    </div>
+{% endif %}
 
 <main class="container mt-5">
     
@@ -16,6 +20,10 @@
                 {% if user.is_staff or not loan.approved %}
                     <button class="btn btn-dark">Actualizar</button>
                 {% endif %}
+                {% if loan.approved and not user.is_staff %}
+                    <button class="btn btn-dark" disabled>Actualizar</button>
+                {% endif %}
+
             </form>
         </div>
     </div>
@@ -26,14 +34,18 @@
                 <form action="{% url 'loan_approved' loan.idLoan %}" method="POST">
                     {% csrf_token %}
                    
-                    <button class="btn btn-success">Aprobar</button>
+                    <button class="btn btn-success">
+                        <i class="fa-solid fa-check" style="color: #ffffff;"></i>
+                        Aprobar</button>
                 
                     
                 </form>
                 {% else %}
                 <form action="{% url 'loan_canceled' loan.idLoan %}" method="post">
                     {% csrf_token %}
-                    <button class="btn btn-danger">Cancelar</button>
+                    <button class="btn btn-danger">
+                        <i class="fa-solid fa-xmark fa-lg" style="color: #ffffff;"></i>
+                        Cancelar</button>
                 </form>
                 {% endif %}
             {% endif %}

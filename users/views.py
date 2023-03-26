@@ -37,10 +37,17 @@ def check_database_connection(database_name='oracle1'):
 
 
 def home(request):
+    
+    if not request.user.is_authenticated:
+        user_type='Visitante'
+    else:
+        user_type=request.user    
     # createStaffUser()
     # print(check_database_connection())
     # print(check_database_connection('oracle2'))
-    return render(request, 'home.html')
+    return render(request, 'home.html',{
+        'user_type': user_type
+    })
 
 
 def signup(request):

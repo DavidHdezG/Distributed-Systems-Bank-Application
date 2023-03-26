@@ -1,68 +1,84 @@
-{% extends 'base.html' %}
-{% block content %}
-
+{% extends 'base.html' %} {% block content %}
 
 <main class="container mt-5">
+  {% if user.is_staff %}
+  <h1 class="text-center">Préstamos pendientes</h1>
+  {% else %}
+  <h1 class="text-center">Préstamos</h1>
+  {% endif %}
 
-    {% if user.is_staff %}
-        <h1 class="text-center">Préstamos pendientes</h1>
-    {% else %}
-        <h1 class="text-center">Préstamos</h1>
-    {% endif %}
+  <form method="POST" class="col-md-2 offset-md-5 text-center">
+    {% csrf_token %}
+    <label for="approved" class="form-label">Estado</label>
+    <select
+      class="form-select form-select-sm"
+      aria-label=".form-select-sm example"
+      name="approved"
+      id="approved"
+    >
+      <option selected value="3">Todos</option>
+      <option value="1">Aprobado</option>
+      <option value="0">No aprobado</option>
+    </select>
+    <button
+      class="btn mt-3"
+      data-bs-toggle="tooltip"
+      data-bs-placement="bottom"
+      data-bs-title="Filtrar"
+    >
+      <i class="fa-solid fa-filter fa-2xl" style="color: #2a3035"></i>
+    </button>
+  </form>
+  <table class="table text-center mt-3 table-hover">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">ID Sucursal</th>
+        <th scope="col">Usuario</th>
+        <th scope="col">Cantidad</th>
+        <th scope="col">Fecha</th>
+        <th scope="col">Estado</th>
+        <th scope="col">Editar</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for loan in loans %}
+      <tr>
+        <th scope="row">{{loan.idLoan}}</th>
+        <td>{{ loan.idBranch}}</td>
+        <td>{{ loan.user}}</td>
+        <td>${{ loan.quantity}}</td>
+        <td>{{loan.date_created}}</td>
+        <td>
+          {% if loan.approved %}
+          <span>Aprobado</span>
+          {% else %}
+          <span>No aprobado</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'loan_detail' loan.idLoan %}" class="btn"data-bs-toggle="tooltip"
+          data-bs-placement="right"
+          data-bs-title="Editar"
+            ><i class="fa-solid fa-pen fa-lg" style="color: #2a3035;"></i></a
+          >
+        </td>
+      </tr>
 
-    <form method="POST" class="col-md-2 offset-md-5 text-center">
-        {% csrf_token %}
-        <label for="approved" class="form-label">Estado</label>
-        <select class="form-select form-select-sm" aria-label=".form-select-sm example" name="approved" id="approved">
-            <option selected value="3">Todos</option>
-            <option  value="1">Aprobado</option>
-            <option value="0">No aprobado</option>
-          </select>
-        <button class="btn btn-dark mt-3">Filtrar</button>
-    </form>
-    <table class="table text-center mt-3 table-hover">
-        <thead>
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">ID Sucursal</th>
-            <th scope="col">Usuario</th>
-            <th scope="col">Cantidad</th>
-            <th scope="col">Fecha</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Detalles</th>
-          </tr>
-        </thead>
-        <tbody>
-            {% for loan in loans %}
-            <tr>
-                <th scope="row">{{loan.idLoan}}</th>
-                <td>{{ loan.idBranch}}</td>
-                <td>{{ loan.user}}</td>
-                <td>${{ loan.quantity}}</td>
-                <td>{{loan.date_created}}</td>
-                <td>
-                    {% if loan.approved %}
-                        <span>Aprobado</span>
-                    {% else %}
-                        <span>No aprobado</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'loan_detail' loan.idLoan %}" class="btn ">Ver</a>
-                </td>
-            </tr>
-    
-            {% endfor %}
-        </tbody>
-      </table>
-      <div class="container mx-auto">
-        <a href="create/" class="btn btn-dark">Nuevo prestamo</a>
-      </div>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div
+    class="col-md-2 offset-md-5 text-center mb-5"
+    data-bs-toggle="tooltip"
+    data-bs-placement="bottom"
+    data-bs-title="Nuevo préstamo"
+  >
+    <a href="create/" class="mb-5">
+      <i class="fa-solid fa-circle-plus fa-2xl" style="color: #2a3035"></i>
+    </a>
+  </div>
 </main>
 
-
-
-
-
 {% endblock %}
-

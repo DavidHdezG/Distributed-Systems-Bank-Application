@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 
+{% if error %}
+    
+    <div class="alert alert-danger col-md-4 offset-md-4 mt-5" role="alert">
+        {{error}}
+    </div>
+{% endif %}
 
-
-{{error}}
 
 <main class="container mt-5">
     <div class="row">
@@ -12,7 +16,7 @@
                 {% csrf_token %}
                 <h3 class="text-center">{{branch.idBranch}}</h3>
                 {{form.as_p}}
-                <button class="btn btn-dark" >update</button>
+                <button class="btn btn-dark" >Actualizar</button>
             </form>
         </div>
     </div>

@@ -1,50 +1,69 @@
-{% extends 'base.html' %}
-{% block content %}
-
+{% extends 'base.html' %} {% block content %}
 
 <main class="container mt-5">
-
-    <h1 class="text-center">Sucursales</h1>
-    <form method="POST" class="col-md-2 offset-md-5 text-center">
-        {% csrf_token %}
-        <label for="region" class="form-label">Región</label>
-        <select class="form-select form-select-sm" aria-label=".form-select-sm example" name="region" id="region">
-
-            <option selected value="3">Todas</option>
-            <option  value="1">Uno</option>
-            <option value="2">Dos</option>
-          </select>
-        <button class="btn btn-dark mt-3">Filtrar</button> 
-    </form>
-    <table class="table text-center mt-3 table-hover">
-        <thead>
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Ciudad</th>
-                <th scope="col">Activos</th>
-                <th scope="col">Región</th>
-                <th scope="col">Detalles</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for branch in branches %}
-            <tr>
-                <th scope="row">{{branch.idBranch}}</th>
-                <td>{{branch.name}}</td>
-                <td>{{branch.city}}</td>
-                <td>${{branch.assets}}</td>
-                <td>{{branch.region}}</td>
-                <td>
-                    <a href="{% url 'branch_detail' branch.idBranch %}" class="btn ">Ver</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <div class="container mx-auto">
-        <a href="create/" class="btn btn-dark">Nueva sucursal</a>
-    </div>
+  <h1 class="text-center">Sucursales</h1>
+  <form method="POST" class="col-md-2 offset-md-5 text-center">
+    {% csrf_token %}
+    <label for="region" class="form-label">Región</label>
+    <select
+      class="form-select form-select-sm"
+      aria-label=".form-select-sm example"
+      name="region"
+      id="region"
+    >
+      <option selected value="3">Todas</option>
+      <option value="1">Uno</option>
+      <option value="2">Dos</option>
+    </select>
+    <button
+      class="btn mt-3"
+      data-bs-toggle="tooltip"
+      data-bs-placement="bottom"
+      data-bs-title="Filtrar"
+    >
+      <i class="fa-solid fa-filter fa-2xl" style="color: #2a3035"></i>
+    </button>
+  </form>
+  <table class="table text-center mt-3 table-hover">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Ciudad</th>
+        <th scope="col">Activos</th>
+        <th scope="col">Región</th>
+        <th scope="col">Editar</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for branch in branches %}
+      <tr>
+        <th scope="row">{{branch.idBranch}}</th>
+        <td>{{branch.name}}</td>
+        <td>{{branch.city}}</td>
+        <td>${{branch.assets}}</td>
+        <td>{{branch.region}}</td>
+        <td>
+          <a href="{% url 'branch_detail' branch.idBranch %}" class="btn" data-bs-toggle="tooltip"
+          data-bs-placement="right"
+          data-bs-title="Editar"
+            ><i class="fa-solid fa-pen fa-xs" style="color: #2a3035;"></i></a
+          >
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div
+    class="col-md-2 offset-md-5 text-center mb-5"
+    data-bs-toggle="tooltip"
+    data-bs-placement="bottom"
+    data-bs-title="Nueva sucursal"
+  >
+    <a href="create/" class="mb-5">
+      <i class="fa-solid fa-circle-plus fa-2xl" style="color: #2a3035"></i>
+    </a>
+  </div>
 </main>
 
 {% endblock %}

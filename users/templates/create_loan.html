@@ -2,7 +2,12 @@
 {% block content %}
 
 
-{{error}}
+{% if error %}
+    
+    <div class="alert alert-danger col-md-4 offset-md-4 mt-5" role="alert">
+        {{error}}
+    </div>
+{% endif %}
 
 
 <main class="container mt-5">
