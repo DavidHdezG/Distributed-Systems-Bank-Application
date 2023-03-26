@@ -10,7 +10,17 @@
         <h1 class="text-center">Préstamos</h1>
     {% endif %}
 
-    <table class="table text-center mt-3">
+    <form method="POST" class="col-md-2 offset-md-5 text-center">
+        {% csrf_token %}
+        <label for="approved" class="form-label">Estado</label>
+        <select class="form-select form-select-sm" aria-label=".form-select-sm example" name="approved" id="approved">
+            <option selected value="3">Todos</option>
+            <option  value="1">Aprobado</option>
+            <option value="0">No aprobado</option>
+          </select>
+        <button class="btn btn-dark mt-3">Filtrar</button>
+    </form>
+    <table class="table text-center mt-3 table-hover">
         <thead>
           <tr>
             <th scope="col">ID</th>

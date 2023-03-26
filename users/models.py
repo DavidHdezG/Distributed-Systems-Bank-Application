@@ -17,9 +17,14 @@ class Loan(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.idLoan:
-            lastValue=Loan.objects.all().order_by('-idLoan').first()
+            lastValue=Loan.objects.raw('SELECT idLoan FROM global_loan ORDER BY idLoan DESC fetch first 1 row only')
+            lastValue=lastValue[0]
+            #lastValue=Loan.objects.all().order_by('-idLoan').first()
             if lastValue is not None:
+                print(lastValue.idLoan)
+                print(lastValue.idLoan.split('-'))
                 lastValue=int(lastValue.idLoan.split('-')[1])
+                
                 newValue=str(lastValue+1).zfill(2)
             else:
                 newValue='00'
@@ -41,7 +46,9 @@ class Branch(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.idBranch:
-            lastValue=Branch.objects.all().order_by('-idBranch').first()
+            lastValue=Branch.objects.raw('SELECT idBranch FROM global_branch ORDER BY idBranch DESC fetch first 1 row only')
+            lastValue=lastValue[0]
+            #lastValue=Branch.objects.all().order_by('-idBranch').first()
             if lastValue is not None:
                 print(lastValue.idBranch)
                 lastValue=int(lastValue.idBranch.split('S')[1])
