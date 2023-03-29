@@ -24,9 +24,9 @@ urlpatterns = [
     path('logout/', views.signout, name='logout'),
     path('signin/', views.signin, name='signin'),
     path('loan/create/', views.createLoan, name='create_loan'),
-    path('loan/<str:loan_id>/', views.loanDetail, name='loan_detail'),
-    path('loan/<str:loan_id>/approved/', views.loan_approved, name='loan_approved'),
-    path('loan/<str:loan_id>/canceled/', views.loan_canceled, name='loan_canceled'),
+    path('loan/<str:idLoan>/', views.loanDetail, name='loan_detail'),
+    path('loan/<str:idLoan>/approved/', views.loan_approved, name='loan_approved'),
+    path('loan/<str:idLoan>/canceled/', views.loan_canceled, name='loan_canceled'),
     path('branch/', views.branch, name='branch'),path('branch/create/', views.create_branch, name='create_branch'),
     path('branch/<str:branch_id>/', views.branch_detail, name='branch_detail'),
     

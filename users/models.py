@@ -11,7 +11,10 @@ class Loan(models.Model):
     approved = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
-    
+    def newLoan(self,loan):
+        loan=Loan(idLoan=loan.idLoan,idBranch=loan.idBranch,quantity=loan.quantity,date_created=loan.date_created,approved=loan.approved,user=loan.user)
+        return loan
+        
     def __str__(self):
         return str(self.idLoan)
     
@@ -32,7 +35,7 @@ class Loan(models.Model):
         super().save(*args, **kwargs)
     class Meta:
         managed = False
-        db_table = 'loan'
+        db_table = 'global_loan'
 
 class Branch(models.Model):
     idBranch = models.CharField(primary_key=True,max_length=10)
@@ -59,5 +62,5 @@ class Branch(models.Model):
         super().save(*args, **kwargs)
     class Meta:
         managed = False
-        db_table = 'branch'
+        db_table = 'global_branch'
 

@@ -4,11 +4,38 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError, connections
 from django.shortcuts import get_object_or_404, redirect, render
-
+from django.db import connection
 from .forms import BranchForm, Client, LoanForm
 from .models import Branch, Loan
+from datetime import datetime
+def newBranchId():
+    lastValue=Branch.objects.raw('SELECT idBranch FROM global_branch ORDER BY idBranch DESC fetch first 1 row only')
+    lastValue=lastValue[0]
+    #lastValue=Branch.objects.all().order_by('-idBranch').first()
+    if lastValue is not None:
+       # print(lastValue.idBranch)
+        lastValue=int(lastValue.idBranch.split('S')[1])
+        newValue=str(lastValue+1).zfill(4)
+    else:
+        newValue='0001'
+    idBranch='S'+newValue
+    return idBranch
+    
+def newLoanId():
+    lastValue=Loan.objects.raw('SELECT idLoan FROM global_loan ORDER BY idLoan DESC fetch first 1 row only')
+    lastValue=lastValue[0]
+    #lastValue=Loan.objects.all().order_by('-idLoan').first()
+    if lastValue is not None:
+        #print(lastValue.idLoan)
+        #print(lastValue.idLoan.split('-'))
+        lastValue=int(lastValue.idLoan.split('-')[1])
+        
+        newValue=str(lastValue+1).zfill(2)
+    else:
+        newValue='00'
+    idLoan='L-'+newValue
+    return idLoan
 
-# Create your views here.
 loan_map = {
     'idLoan': 'idLoan',
     'quantity': 'quantity',
@@ -37,43 +64,27 @@ def check_database_connection(database_name='oracle1'):
 
 
 def home(request):
-    
+    with connection.cursor() as cursor:
+        cursor.callproc('DBMS_MVIEW.REFRESH', ['gv_loan', 'COMPLETE'])
+        cursor.callproc('DBMS_MVIEW.REFRESH', ['gv_branch', 'COMPLETE'])
+        #cursor.execute("EXEC DBMS_MVIEW.REFRESH('gv_loan', 'COMPLETE');")
+        
+    mvLoan = Loan.objects.raw("SELECT * FROM gv_loan")
+    mvBranch = Branch.objects.raw("SELECT * FROM gv_branch")
+    totalLoans = Branch.objects.raw("SELECT * FROM total_loan")
+  
     if not request.user.is_authenticated:
-        user_type='Visitante'
+        user_type = 'Visitante'
     else:
-        user_type=request.user    
+        user_type = request.user
     # createStaffUser()
     # print(check_database_connection())
     # print(check_database_connection('oracle2'))
-    return render(request, 'home.html',{
-        'user_type': user_type
-    })
-
-
-def signup(request):
-
-    if request.method == 'GET':
-        return render(request, 'signup.html', {
-            'form': Client,
-        })
-    else:
-        if request.POST['password1'] == request.POST['password2']:
-            # register user
-            try:
-                user = User.objects.create_user(
-                    username=request.POST['username'], password=request.POST['password1'])
-                user.save()
-                login(request, user)
-                return redirect('home')
-            except IntegrityError:
-                return render(request, 'signup.html', {
-                    'form': Client,
-                    'error': 'user already exists'
-                })
-
-        return render(request, 'signup.html', {
-            'form': Client,
-            'error': 'passwords did not match'
+    return render(request, 'home.html', {
+        'user_type': user_type,
+        'loans': mvLoan,
+        'branches': mvBranch,
+        'totalLoans': totalLoans,
         })
 
 
@@ -111,27 +122,35 @@ def loan(request):
     loans = []
     if request.method == 'GET':
         if not staff:
-            loans = Loan.objects.raw(
-                "SELECT * FROM global_loan WHERE user_id=%s", [request.user.id])
+            #loans = Loan.objects.raw(
+            #    "SELECT * FROM global_loan WHERE user_id=%s", [request.user.id])
+            loans=Loan.objects.all().filter(user_id=request.user.id).order_by('idLoan')
         else:
-            loans=Loan.objects.raw("SELECT * FROM global_loan ORDER BY idLoan DESC")
+            loans=Loan.objects.all().order_by('idLoan')
+           # loans = Loan.objects.raw(
+              #  "SELECT * FROM global_loan ORDER BY idLoan DESC")
 
     else:
         approved = request.POST.get('approved')
 
         if approved == '3':
             if not staff:
-                loans = Loan.objects.raw(
-                    "SELECT * FROM global_loan WHERE user_id=%s ORDER BY idLoan DESC", [request.user.id], translations=loan_map)
+                #loans = Loan.objects.raw(
+                 #   "SELECT * FROM global_loan WHERE user_id=%s ORDER BY #idLoan DESC", [request.user.id], translations=loan_map)
+                loans=Loan.objects.all().filter(user_id=request.user.id).order_by('idLoan')
             else:
-                loans = Loan.objects.raw(
-                    "SELECT * FROM global_loan ORDER BY idLoan DESC", translations=loan_map)
+                #loans = Loan.objects.raw(
+                 #   "SELECT * FROM global_loan ORDER BY idLoan DESC", #translations=loan_map)
+                loans=Loan.objects.all().order_by('idLoan')
+                
         else:
-            loans = Loan.objects.raw(
-                "SELECT * FROM global_loan WHERE approved=%s ORDER BY idLoan DESC", [approved], translations=loan_map)
+            #loans = Loan.objects.raw(
+             #   "SELECT * FROM global_loan WHERE approved=%s ORDER BY idLoan #DESC", [approved], translations=loan_map)
+            loans=Loan.objects.all().filter(approved=approved).order_by('idLoan')
             if not staff:
-                loans = Loan.objects.raw("SELECT * FROM global_loan WHERE approved=%s AND user_id=%s ORDER BY idLoan DESC", [
-                                         request.POST.get('approved'), request.user.id], translations=loan_map)
+                #loans = Loan.objects.raw("SELECT * FROM global_loan WHERE #approved=%s AND user_id=%s ORDER BY idLoan DESC", [
+                #                         request.POST.get('approved'), request.#user.id], translations=loan_map)
+                loans=Loan.objects.all().filter(approved=approved).filter(user_id=request.user.id).order_by('idLoan')
 
     # print( request.POST.get('approved')   )
     return render(request, 'loan.html', {
@@ -166,16 +185,43 @@ def signin(request):
 def createLoan(request):
 
     if request.method == 'GET':
+        #print(type(Branch.objects.raw("SELECT * FROM global_branch", #translations=branch_map)))
+        #form=LoanForm()
+        #form.fields['idBranch'].choices = [(branch.idBranch, branch.name) for #branch in Branch.objects.raw("SELECT * FROM global_branch", #translations=branch_map)]
+        
         return render(request, 'create_loan.html', {
             'form': LoanForm
         })
     else:
         try:
-            form = LoanForm(request.POST)
-            new_loan = form.save(commit=False)
-            new_loan.user = request.user
-            print(new_loan)
-            new_loan.save()
+            #form = LoanForm(request.POST)
+            
+            form={
+                'idLoan': request.POST.get('idLoan'),
+                'idBranch': request.POST.get('idBranch'),
+                'quantity': request.POST.get('quantity'),
+                'date_created': datetime.now(),
+                'approved': '0',
+                'user': request.user
+            }
+            
+            #new_loan=newLoanFromDict(form)
+            #form = LoanForm(request.POST)
+            #new_loan = form.save(commit=False)
+            #new_loan.user = request.user
+            #form.fields['idBranch'].choices=request.POST.get('idBranch')
+            #new_loan = form.save(commit=False)
+            print("baisbd")
+            #print(new_loan.idLoan)
+            print(request.POST.get('idBranch'))
+            #new_loan.user = request.user
+            with connection.cursor() as cursor:
+                cursor.callproc('new_loan', [newLoanId(), float(request.POST.get('quantity')), datetime.now(),0, str(request.POST.get('idBranch')),    request.user.id])
+            #new_loan.idBranch = request.POST.get('idBranch')
+            
+            
+            #print(new_loan.idBranch)
+            #new_loan.save()
             return redirect('loan')
         except ValueError:
             return render(request, 'create_loan.html', {
@@ -184,14 +230,18 @@ def createLoan(request):
             })
 
 
-@login_required
-def loanDetail(request, loan_id):
-    if request.method == 'GET':
-        if request.user.is_staff:
-            loan = get_object_or_404(Loan, pk=loan_id)
-        else:
-            loan = get_object_or_404(Loan, pk=loan_id, user=request.user)
 
+
+@login_required
+def loanDetail(request, idLoan):
+    if request.method == 'GET':
+
+        #loan = Loan.objects.raw(
+        #    "SELECT * FROM global_loan WHERE idLoan=%s", [idLoan], #translations=loan_map)
+        
+        loan = get_object_or_404(Loan, pk=idLoan)
+
+        #print(loan[0])
         form = LoanForm(instance=loan)
         return render(request, 'loan_detail.html', {
             'loan': loan,
@@ -199,13 +249,20 @@ def loanDetail(request, loan_id):
         })
     else:
         try:
-            if request.user.is_staff:
-                loan = get_object_or_404(Loan, pk=loan_id)
-            else:
-                loan = get_object_or_404(Loan, pk=loan_id, user=request.user)
 
-            form = LoanForm(request.POST, instance=loan)
-            form.save()
+            #loan = Loan.objects.raw(
+            #    "SELECT * FROM global_loan WHERE idLoan=%s", [idLoan], #translations=loan_map)
+            loan = get_object_or_404(Loan, pk=idLoan)
+            #print(request.POST.get('idLoan'))
+            
+            with connection.cursor() as cursor:
+                cursor.callproc('update_loan', [idLoan, float(request.POST.get('quantity')), str(request.POST.get('idBranch'))])
+                
+                
+                
+            #form = LoanForm(request.POST, instance=loan)
+            #print(loan)
+            #form.save()
 
             return redirect('loan')
         except ValueError:
@@ -219,19 +276,26 @@ def loanDetail(request, loan_id):
 @user_passes_test(lambda u: u.is_staff)
 def branch(request):
     branches = []
+    
+    
     if (request.method == 'GET'):
-        branches = Branch.objects.raw(
-            'SELECT * FROM global_branch ORDER BY idBranch DESC', translations=branch_map)
+        branches=Branch.objects.all();
+        # branches = Branch.objects.raw(
+        #     'SELECT * FROM global_branch ORDER BY idBranch DESC', translations=branch_map)
     else:
         if request.POST.get('region') == '3':
-            branches = Branch.objects.raw(
-                'SELECT * FROM global_branch ORDER BY idBranch DESC', translations=branch_map)
+            branches = Branch.objects.all().order_by('idBranch');
+            
+            #branches = Branch.objects.raw(
+            #    'SELECT * FROM global_branch ORDER BY idBranch DESC', #translations=branch_map)
         elif request.POST.get('region') == '1':
-            branches = Branch.objects.raw(
-                'SELECT * FROM global_branch WHERE region=1 ORDER BY idBranch DESC', translations=branch_map)
+            branches=Branch.objects.all().filter(region=1).order_by('idBranch');
+            #branches = Branch.objects.raw(
+            #    'SELECT * FROM global_branch WHERE region=1 ORDER BY idBranch #DESC', translations=branch_map)
         else:
-            branches = Branch.objects.raw(
-                'SELECT * FROM global_branch WHERE region=2 ORDER BY idBranch DESC', translations=branch_map)
+            branches=Branch.objects.all().filter(region=2).order_by('idBranch');
+            #branches = Branch.objects.raw(
+            #    'SELECT * FROM global_branch WHERE region=2 ORDER BY idBranch #DESC', translations=branch_map)
 
     return render(request, 'branch.html', {
         'branches': branches
@@ -250,8 +314,13 @@ def branch_detail(request, branch_id):
     else:
         try:
             branch = get_object_or_404(Branch, pk=branch_id)
-            form = BranchForm(request.POST, instance=branch)
-            form.save()
+            #form = BranchForm(request.POST, instance=branch)
+            #form.save()
+            
+            with connection.cursor() as cursor:
+                cursor.callproc('update_branch', [branch_id,str(request.POST.get('name')),  str(request.POST.get('city')),  float(request.POST.get('assets')),float(request.POST.get('region'))])
+            
+            
             return redirect('branch')
         except ValueError:
             return render(request, 'branch_detail.html', {
@@ -271,7 +340,11 @@ def create_branch(request):
         try:
             form = BranchForm(request.POST)
             new_branch = form.save(commit=False)
-            new_branch.save()
+            #new_branch.save()
+            
+            with connection.cursor() as cursor:
+                cursor.callproc('new_branch', [newBranchId(), str(new_branch.name), str(new_branch.city), float(new_branch.assets), float(new_branch.region)])
+            
             return redirect('branch')
         except ValueError:
             return render(request, 'create_branch.html', {
@@ -280,19 +353,26 @@ def create_branch(request):
             })
 
 
-def loan_approved(request, loan_id):
-    loan = get_object_or_404(Loan, pk=loan_id)
+def loan_approved(request, idLoan):
+    loan = get_object_or_404(Loan, pk=idLoan)
     if request.method == 'POST' and request.user.is_staff:
-        loan.approved = True
-        loan.save()
+
+        with connection.cursor() as cursor:
+            cursor.callproc('approved_loan', [idLoan, 1, loan.idBranch.idBranch])
+
+        #loan.approved = True
+        #loan.save()
         return redirect('loan')
 
 
-def loan_canceled(request, loan_id):
-    loan = get_object_or_404(Loan, pk=loan_id)
+def loan_canceled(request, idLoan):
+    loan = get_object_or_404(Loan, pk=idLoan)
     if request.method == 'POST' and request.user.is_staff:
-        loan.approved = False
-        loan.save()
+        
+
+        with connection.cursor() as cursor:
+            cursor.callproc('approved_loan', [idLoan, 0, loan.idBranch.idBranch])
+
         return redirect('loan')
 
 

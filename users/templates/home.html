@@ -17,19 +17,94 @@
                 
               </div>
               
-              <div>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Et recusandae
-                nesciunt distinctio voluptatem ex fugiat ea minima id explicabo ducimus
-                ipsam asperiores eos sequi nobis corrupti laboriosam consequuntur,
-                doloribus magni! Tempore maiores, eius libero quam culpa recusandae a,
-                facilis, velit ratione ab eaque ipsa eos nobis officia nemo sunt at. Sint
-                inventore itaque amet a eligendi minima possimus veritatis laborum!
-                Dolorem, ab nisi quos consectetur id dolor unde facere consequuntur,
-                doloremque fugit molestiae voluptatibus. Natus consectetur, vel, at
-                assumenda repudiandae repellat quo ad, cumque fugit laudantium aperiam
-                possimus! Repudiandae, temporibus!
+              
+            </div>
+            {% if user.is_staff %}
+            <div class="row">
+              <h4 class="text-center mt-4">Vistas materializadas</h4>
+              <div class="col">
+                <table class="table text-center mt-3 table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">ID</th>
+                      <th scope="col">Sucursal</th>
+                      <th scope="col">Usuario</th>
+                      <th scope="col">Cantidad</th>
+                      <th scope="col">Fecha</th>
+                      <th scope="col">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for loan in loans %}
+                    <tr>
+                      <th scope="row">{{loan.idLoan}}</th>
+                      <td>{{ loan.idBranch}}</td>
+                      <td>{{ loan.user}}</td>
+                      <td>${{ loan.quantity}}</td>
+                      <td>{{loan.date_created}}</td>
+                      <td>
+                        {% if loan.approved %}
+                        <span>Aprobado</span>
+                        {% else %}
+                        <span>No aprobado</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+              
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="col">
+                <div class="row">
+                  <table class="table text-center mt-3 table-hover">
+                    <thead>
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Ciudad</th>
+                        <th scope="col">Activos</th>
+                        <th scope="col">Región</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for branch in branches %}
+                      <tr>
+                        <th scope="row">{{branch.idBranch}}</th>
+                        <td>{{branch.name}}</td>
+                        <td>{{branch.city}}</td>
+                        <td>${{branch.assets}}</td>
+                        <td>{{branch.region}}</td>
+  
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <div class="row">
+                  <h4 class="text-center mt-4">Préstamos totales por sucursal</h4>
+                  <table class="table text-center mt-3 table-hover">
+                    <thead>
+                      <tr>
+                        <th class="col">Sucursal</th>
+                        <th class="col">Préstamos totales</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for total in totalLoans %}
+                      <tr>
+                        <td>{{total.idBranch}}</td>
+                        <td>{{total.loan_total}}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
+
+            
+            {% endif %}
           </div>
 
         {% if not user.is_authenticated %}
